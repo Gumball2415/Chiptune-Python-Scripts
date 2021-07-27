@@ -61,7 +61,7 @@ if exp_byte & bit_vrc7:
   print("VRC7 detected.")
   chan_list += chan_vrc7 + chan_vrc7ex  
 if exp_byte & bit_n163:
-  print("has N163")
+  print("N163 detected.")
   chan_list += chan_n163
 else:
   print("no expansion audio detected")
