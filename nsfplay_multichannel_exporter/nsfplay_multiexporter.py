@@ -41,7 +41,7 @@ parser=argparse.ArgumentParser(
   epilog="version beta 0.4")
 parser.add_argument("inputnsf", type=str, help="NSF file input")
 parser.add_argument("nsftrack", type=int, help="Track of .nsf")
-parser.add_argument("wavlength", type=int, help="Length of .wav export in milliseconds")
+parser.add_argument("wavlength", type=int, help="Length of .wav export in seconds")
 parser.add_argument("outputwav", type=str, help="WAV Export name")
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable output verbosity")
 parser.add_argument("-nch", "--n163channels", type=int, default=8, help="Specify number of N163 channels. Default is 8")
@@ -116,8 +116,10 @@ else:
 vol_off = "=0\n"
 vol_on  = "=128\n"
 oldLevels = []
+oldTime = ""
 
 # back up old settings
+oldTime = inyansf_readsetting("PLAY_TIME")
 
 for x in range(len(chan_list)):
   currentchannel = "CHANNEL_%s_VOL"%(str(chan_list[x]).zfill(2))
@@ -143,15 +145,19 @@ for x in range(len(chan_list)):
   if args.verbose:
     print("Isolating", channeliso)
 
+  inyansf_writesetting("PLAY_TIME", "=" + str(args.wavlength * 1000) + "\n")
+
 #4. export each isolated track with specific parameters
   # nsfplay [nsf_filename] [wav_filename] [track] [milliseconds]
-  cli_args = "nsfplay.exe \"%s\" \"%s_%s.wav\" %i %i"%(args.inputnsf, args.outputwav, channelname, args.nsftrack, args.wavlength)
+  cli_args = "nsfplay.exe \"%s\" \"%s_%s.wav\" %i %i"%(args.inputnsf, args.outputwav, channelname, args.nsftrack, args.wavlength * 1000 + 100) #add 100 ms to ensure NSFPlay stops wav exactly at the specified time
   print("Exporting %s..."%channelname)
   if args.verbose:
     print(cli_args)
   subprocess.run(cli_args)
 
 #restore settings
+inyansf_writesetting("PLAY_TIME", "=" + oldTime)
+
 for x in range(len(chan_list)):
   currentchannel = "CHANNEL_%s_VOL"%(str(chan_list[x]).zfill(2))
   if args.verbose:
