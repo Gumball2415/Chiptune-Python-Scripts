@@ -3,14 +3,40 @@ import subprocess
 import sys
 import argparse
 
+def inyansf_writesetting(setting, value):
+  
+  try: inyansf = open("plugins/in_yansf.ini", "r")
+  except Exception as e:
+    print(e)
+    sys.exit(1)
+    
+  inyansf_buffer = open("buffer", "w")
+  for line in inyansf:
+    if setting in line:
+      inyansf_buffer.write(setting + value)
+    else:
+      inyansf_buffer.write(line)
+  inyansf.close()
+  inyansf_buffer.close()
+  # write temporary buffer to original config file
+  inyansf_bufferread = open("buffer", "r")
+  inyansfwrite = open("plugins/in_yansf.ini", "w")
+  for line in inyansf_bufferread:
+    inyansfwrite.write(line)
+  inyansf_bufferread.close()
+  inyansfwrite.close()
+
 parser=argparse.ArgumentParser(
   description="NSFPlay Channel Exporter by Persune",
-  epilog="version beta 0.2")
-parser.add_argument("-i", "--inputnsf", type=str, help="NSF file input")
-parser.add_argument("-o", "--outputwav", type=str, help="WAV Export name")
-parser.add_argument("-t", "--nsftrack", type=int, help="Track of .nsf")
-parser.add_argument("-l", "--wavlength", type=int, help="Length of .wav export in milliseconds")
+  epilog="version beta 0.3")
+parser.add_argument("inputnsf", type=str, help="NSF file input")
+parser.add_argument("nsftrack", type=int, help="Track of .nsf")
+parser.add_argument("wavlength", type=int, help="Length of .wav export in milliseconds")
+parser.add_argument("outputwav", type=str, help="WAV Export name")
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable output verbosity")
+if len(sys.argv) < 2:
+  parser.print_help()
+  sys.exit(1)
 args = parser.parse_args()
 
 if args.verbose:
@@ -79,47 +105,14 @@ for x in chan_list:
   for y in chan_list:
     # write temporary buffer file with modified volumes
     currentchannel = "CHANNEL_%s_VOL"%(str(y).zfill(2))
-    inyansf = open("plugins/in_yansf.ini", "r")
-    inyansf_buffer = open("buffer", "w")
-    
-    for line in inyansf:
-      if currentchannel in line:
-        inyansf_buffer.write(currentchannel + vol_off)
-        if args.verbose:
-          print("Muting", currentchannel)
-      else:
-        inyansf_buffer.write(line)
-    inyansf.close()
-    inyansf_buffer.close()
-
-    # write temporary buffer to original config file
-    inyansf_bufferread = open("buffer", "r")
-    inyansfwrite = open("plugins/in_yansf.ini", "w")
-    for line in inyansf_bufferread:
-      inyansfwrite.write(line)
-    inyansf_bufferread.close()
-    inyansfwrite.close()
-
+    inyansf_writesetting(currentchannel, vol_off)
+    if args.verbose:
+      print("Muting", currentchannel)
   #unmute exported channel
-  inyansf = open("plugins/in_yansf.ini", "r")
-  inyansf_buffer = open("buffer", "w")
-  for line in inyansf:
-    if channeliso in line:
-      inyansf_buffer.write(channeliso + vol_on)
-      if args.verbose:
-        print("Isolating", channeliso)
-    else:
-      inyansf_buffer.write(line)
-  inyansf.close()
-  inyansf_buffer.close()
-  # write temporary buffer to original config file
-  inyansf_bufferread = open("buffer", "r")
-  inyansfwrite = open("plugins/in_yansf.ini", "w")
-  for line in inyansf_bufferread:
-    inyansfwrite.write(line)
-  inyansf_bufferread.close()
-  inyansfwrite.close()
- 
+  inyansf_writesetting(channeliso, vol_on)
+  if args.verbose:
+    print("Isolating", channeliso)
+
 #4. export each isolated track with specific parameters
   # nsfplay [nsf_filename] [wav_filename] [track] [milliseconds]
   cli_args = "nsfplay.exe \"%s\" \"%s_%s.wav\" %i %i"%(args.inputnsf, args.outputwav, channelname, args.nsftrack, args.wavlength)
@@ -127,27 +120,13 @@ for x in chan_list:
   if args.verbose:
     print(cli_args)
   subprocess.run(cli_args)
-  
+
 #restore channel levels to 128
 for x in chan_list:
   currentchannel = "CHANNEL_%s_VOL"%(str(x).zfill(2))
-  inyansf = open("plugins/in_yansf.ini", "r")
-  inyansf_buffer = open("buffer", "w")
-  for line in inyansf:
-    if currentchannel in line:
-      inyansf_buffer.write(currentchannel + vol_on)
-      if args.verbose:
-        print("Restoring", currentchannel)
-    else:
-      inyansf_buffer.write(line)
-  inyansf.close()
-  inyansf_buffer.close()
-  inyansf_bufferread = open("buffer", "r")
-  inyansfwrite = open("plugins/in_yansf.ini", "w")
-  for line in inyansf_bufferread:
-    inyansfwrite.write(line)
-  inyansf_bufferread.close()
-  inyansfwrite.close()
+  if args.verbose:
+    print("Restoring", currentchannel)
+  inyansf_writesetting(currentchannel, vol_on)
 
 os.remove("buffer")
 fo.close()
