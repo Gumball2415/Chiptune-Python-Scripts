@@ -5,29 +5,29 @@ Place the script in the NSFPlay folder, making sure it's next to `nsfplay.exe` a
 
 ![](nsfplay_folder.png)
 
-Note that this will generate tracks with nonlinear distortion, so make sure your configurations are set to deterministic settings (i.e. no random triangle phase, random noise phase, etc.)
+Note that this will generate tracks with nonlinear distortion, so make sure your configurations are set to deterministic settings (i.e. no random triangle phase, no random noise phase, etc.)
 
 ![](commandline.png)
 
 [Example oscilloscope video using the output files](https://youtu.be/71gAf07z7e4)
 
 ```
-usage: nsfplay_multiexporter.py [-h] [-i INPUTNSF] [-o OUTPUTWAV] [-t NSFTRACK] [-l WAVLENGTH] [-v]
+usage: nsfplay_multiexporter.py [-h] [-v] [-nch N163CHANNELS] inputnsf nsftrack wavlength outputwav
 
 NSFPlay Channel Exporter by Persune
 
+positional arguments:
+  inputnsf              NSF file input
+  nsftrack              Track of .nsf
+  wavlength             Length of .wav export in seconds
+  outputwav             WAV Export name
+
 optional arguments:
   -h, --help            show this help message and exit
-  -i INPUTNSF, --inputnsf INPUTNSF
-                        NSF file input
-  -o OUTPUTWAV, --outputwav OUTPUTWAV
-                        WAV Export name
-  -t NSFTRACK, --nsftrack NSFTRACK
-                        Track of .nsf
-  -l WAVLENGTH, --wavlength WAVLENGTH
-                        Length of .wav export in milliseconds
   -v, --verbose         Enable output verbosity
+  -nch N163CHANNELS, --n163channels N163CHANNELS
+                        Specify number of N163 channels. Default is 8
 
-version beta 0.2
+version beta 0.4
 ```
 
