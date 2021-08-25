@@ -28,12 +28,13 @@ def inyansf_writesetting(setting, value):
 
 parser=argparse.ArgumentParser(
   description="NSFPlay Channel Exporter by Persune",
-  epilog="version beta 0.3")
+  epilog="version beta 0.4")
 parser.add_argument("inputnsf", type=str, help="NSF file input")
 parser.add_argument("nsftrack", type=int, help="Track of .nsf")
 parser.add_argument("wavlength", type=int, help="Length of .wav export in milliseconds")
 parser.add_argument("outputwav", type=str, help="WAV Export name")
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable output verbosity")
+parser.add_argument("-nch", "--n163channels", type=int, default=8, help="Specify number of N163 channels. Default is 8")
 if len(sys.argv) < 2:
   parser.print_help()
   sys.exit(1)
@@ -41,6 +42,13 @@ args = parser.parse_args()
 
 if args.verbose:
   print("Verbosity turned on")
+  
+if args.n163channels < 1:
+  print("Error: 0 N163 channels specified.")
+  sys.exit(1)
+elif args.n163channels > 8:
+  print("Error: more than 8 N163 channels specified.")
+  sys.exit(1)
 
 fo = open(args.inputnsf, "rb")
 
@@ -88,7 +96,8 @@ if exp_byte & bit_vrc7:
   chan_list += chan_vrc7 + chan_vrc7ex  
 if exp_byte & bit_n163:
   print("N163 detected.")
-  chan_list += chan_n163
+  for x in range(0, args.n163channels):
+    chan_list.append(chan_n163[x])
 else:
   print("no expansion audio detected")
 
