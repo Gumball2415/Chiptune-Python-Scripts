@@ -4,7 +4,6 @@ import sys
 import argparse
 
 def inyansf_writesetting(setting, value):
-  
   try: inyansf = open("plugins/in_yansf.ini", "r")
   except Exception as e:
     print(e)
@@ -25,6 +24,17 @@ def inyansf_writesetting(setting, value):
     inyansfwrite.write(line)
   inyansf_bufferread.close()
   inyansfwrite.close()
+
+def inyansf_readsetting(setting):
+  try: inyansf = open("plugins/in_yansf.ini", "r")
+  except Exception as e:
+    print(e)
+    sys.exit(1)
+    
+  for line in inyansf:
+    if setting in line:
+      return line.split("=", 1)[1]
+  inyansf.close()
 
 parser=argparse.ArgumentParser(
   description="NSFPlay Channel Exporter by Persune",
@@ -105,15 +115,26 @@ else:
 
 vol_off = "=0\n"
 vol_on  = "=128\n"
+oldLevels = []
 
-for x in chan_list:
-  channelname = "CHANNEL_%s"%str(x).zfill(2)
+# back up old settings
+
+for x in range(len(chan_list)):
+  currentchannel = "CHANNEL_%s_VOL"%(str(chan_list[x]).zfill(2))
+  oldLevels.append(inyansf_readsetting(currentchannel))
+
+if args.verbose:
+  print("Saved levels: ",oldLevels)
+  print("Saved playback length: ",oldTime)
+
+for x in range(len(chan_list)):
+  channelname = "CHANNEL_%s"%str(chan_list[x]).zfill(2)
   channeliso = channelname + "_VOL"
-  
+
   #mute all channels
-  for y in chan_list:
+  for y in range(len(chan_list)):
     # write temporary buffer file with modified volumes
-    currentchannel = "CHANNEL_%s_VOL"%(str(y).zfill(2))
+    currentchannel = "CHANNEL_%s_VOL"%(str(chan_list[y]).zfill(2))
     inyansf_writesetting(currentchannel, vol_off)
     if args.verbose:
       print("Muting", currentchannel)
@@ -130,12 +151,13 @@ for x in chan_list:
     print(cli_args)
   subprocess.run(cli_args)
 
-#restore channel levels to 128
-for x in chan_list:
-  currentchannel = "CHANNEL_%s_VOL"%(str(x).zfill(2))
+#restore settings
+for x in range(len(chan_list)):
+  currentchannel = "CHANNEL_%s_VOL"%(str(chan_list[x]).zfill(2))
   if args.verbose:
     print("Restoring", currentchannel)
-  inyansf_writesetting(currentchannel, vol_on)
+  oldLevel = "=" + oldLevels[x]
+  inyansf_writesetting(currentchannel, oldLevel)
 
 os.remove("buffer")
 fo.close()
