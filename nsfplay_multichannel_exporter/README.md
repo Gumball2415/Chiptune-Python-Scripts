@@ -1,6 +1,15 @@
 # NSFPlay Multichannel Exporter
 
+automatic stem extract?
+
+---
+
+## About
+
 A quick and dirty multichannel exporter for NSFPlay, built on version 2.5, compatible with version 2.4.
+
+## Example
+
 Place the script in the NSFPlay folder, making sure it's next to `nsfplay.exe` and the `plugins` folder.
 
 ![](nsfplay_folder.png)
@@ -10,6 +19,8 @@ Note that this will generate tracks with nonlinear distortion, so make sure your
 ![](commandline.png)
 
 [Example oscilloscope video using the output files](https://youtu.be/71gAf07z7e4)
+
+## Usage
 
 ```
 usage: nsfplay_multiexporter.py [-h] [-v] [-nch N163CHANNELS] inputnsf nsftrack wavlength outputwav
@@ -31,3 +42,7 @@ optional arguments:
 version beta 0.4
 ```
 
+## License
+
+Licensed under the MIT-0 license.
+Copyright 2021-2024 Persune.

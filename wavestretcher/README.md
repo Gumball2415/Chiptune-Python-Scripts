@@ -1,13 +1,22 @@
 # Wavestretcher
 
+it stretches waves
+
+---
+
+## About
+
 A crusty, no-interpolation wavetable converter. Converts mml wavetable data from one format to another.
 
+## Example
+
+Converting from N163 wavetable data to FDS wavetable data:
+
 ![](n163.png)
-![](fds.png) 
-Example above: converting from N163 wavetable data to FDS wavetable data.
-
 ![](commandline.png)
+![](fds.png) 
 
+## Usage
 
 ```
 usage: wavestretcher.py [-h] [-v] input_txt input_depth output_txt output_length output_depth
@@ -28,4 +37,6 @@ optional arguments:
 version beta 0.1
 ```
 
+## License
 
+Licensed under the MIT-0 license. Copyright 2021-2024 Persune.

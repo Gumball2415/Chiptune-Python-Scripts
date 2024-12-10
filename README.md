@@ -5,3 +5,8 @@ This is a collection of personal Python scripts that is conducive to my chiptune
 - [NSFPlay Multichannel Exporter](nsfplay_multichannel_exporter)
 - [DPCM (.dmc) Splitter](dpcm_splitter)
 - [Wavestretcher](wavestretcher)
+
+## License
+
+Licensed under the MIT-0 license.
+Copyright 2021-2024 Persune.

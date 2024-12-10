@@ -1,22 +1,23 @@
-# NSFPlay seperate channel exporter by Persune
-#
-# Copyright (C) 2021-2022 Persune
+# NSFPlay seperate channel exporter
 # 
-# This software is provided 'as-is', without any express or implied
-# warranty.  In no event will the authors be held liable for any damages
-# arising from the use of this software.
+# MIT No Attribution
 # 
-# Permission is granted to anyone to use this software for any purpose,
-# including commercial applications, and to alter it and redistribute it
-# freely, subject to the following restrictions:
+# Copyright 2021-2024 Persune
 # 
-# 1. The origin of this software must not be misrepresented; you must not
-#    claim that you wrote the original software. If you use this software
-#    in a product, an acknowledgment in the product documentation would be
-#    appreciated but is not required.
-# 2. Altered source versions must be plainly marked as such, and must not be
-#    misrepresented as being the original software.
-# 3. This notice may not be removed or altered from any source distribution.
+# Permission is hereby granted, free of charge, to any person obtaining a copy 
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+# copies of the Software, and to permit persons to whom the Software is 
+# furnished to do so.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+# THE SOFTWARE.
 
 import os
 import subprocess
@@ -58,13 +59,13 @@ def inyansf_readsetting(setting):
 
 parser=argparse.ArgumentParser(
   description="NSFPlay Channel Exporter by Persune",
-  epilog="version beta 0.4")
+  epilog="version beta 0.5")
 parser.add_argument("inputnsf", type=str, help="NSF file input")
 parser.add_argument("nsftrack", type=int, help="Track of .nsf")
 parser.add_argument("wavlength", type=int, help="Length of .wav export in seconds")
 parser.add_argument("outputwav", type=str, help="WAV Export name")
 parser.add_argument("-v", "--verbose", action="store_true", help="Enable output verbosity")
-parser.add_argument("-nch", "--n163channels", type=int, default=8, help="Specify number of N163 channels. Default is 8")
+parser.add_argument("-nch", "--n163channels", type=int, default=0, help="Specify number of N163 channels. Default is 0")
 if len(sys.argv) < 2:
   parser.print_help()
   sys.exit(1)
@@ -72,13 +73,6 @@ args = parser.parse_args()
 
 if args.verbose:
   print("Verbosity turned on")
-  
-if args.n163channels < 1:
-  print("Error: 0 N163 channels specified.")
-  sys.exit(1)
-elif args.n163channels > 8:
-  print("Error: more than 8 N163 channels specified.")
-  sys.exit(1)
 
 fo = open(args.inputnsf, "rb")
 
@@ -126,6 +120,12 @@ if exp_byte & bit_vrc7:
   chan_list += chan_vrc7 + chan_vrc7ex  
 if exp_byte & bit_n163:
   print("N163 detected.")
+    if args.n163channels < 1:
+      print("Error: 0 N163 channels specified.")
+      sys.exit(1)
+    elif args.n163channels > 8:
+      print("Error: more than 8 N163 channels specified.")
+      sys.exit(1)
   for x in range(0, args.n163channels):
     chan_list.append(chan_n163[x])
 else:
@@ -169,7 +169,8 @@ for x in range(len(chan_list)):
 
 #4. export each isolated track with specific parameters
   # nsfplay [nsf_filename] [wav_filename] [track] [milliseconds]
-  cli_args = "nsfplay.exe \"%s\" \"%s_%s.wav\" %i %i"%(args.inputnsf, args.outputwav, channelname, args.nsftrack, args.wavlength * 1000 + 100) #add 100 ms to ensure NSFPlay stops wav exactly at the specified time
+  # variable .wav length fixed in 2.6
+  cli_args = "nsfplay.exe \"%s\" \"%s_%s.wav\" %i %i"%(args.inputnsf, args.outputwav, channelname, args.nsftrack, args.wavlength * 1000)
   print("Exporting %s..."%channelname)
   if args.verbose:
     print(cli_args)
