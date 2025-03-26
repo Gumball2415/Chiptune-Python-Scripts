@@ -39,4 +39,4 @@ version beta 0.1
 
 ## License
 
-Licensed under the MIT-0 license. Copyright 2021-2024 Persune.
+Licensed under the MIT-0 license. Copyright 2021-2025 Persune.
