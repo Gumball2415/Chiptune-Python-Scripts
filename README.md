@@ -5,6 +5,7 @@ This is a collection of personal Python scripts that is conducive to my chiptune
 - [NSFPlay Multichannel Exporter](nsfplay_multichannel_exporter)
 - [DPCM (.dmc) Splitter](dpcm_splitter)
 - [Wavestretcher](wavestretcher)
+- [detune_intonator](detune_intonator/README)
 
 ## License
 
