@@ -1,4 +1,4 @@
-# Detune Intonate
+# Detune Intonator
 
 it's just an intonation
 
