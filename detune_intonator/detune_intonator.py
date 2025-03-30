@@ -77,7 +77,7 @@ def note_to_reg_VRC7_period(tunesetting: tune_setting, MIDI_num: int) -> int:
     MIDI_note = MIDI_num % 12
     freq = MIDI_num_to_freq(tunesetting, MIDI_note)
     oct = 1
-    period = int(round((freq * 2**(19-oct))) / float(CLK_VRC7 / 72.0))
+    period = int(round((freq * 2**(19-oct)) / (CLK_VRC7 / 72.0)))
     return min(max(period, 0), 0x1FF)
 
 def note_to_reg_FDS_period(tunesetting: tune_setting, MIDI_num: int) -> int:
@@ -205,6 +205,10 @@ def parse_argv(argv):
 
     # output options
     parser.add_argument(
+        "output",
+        type=str,
+        help="output .csv")
+    parser.add_argument(
         "-d",
         "--debug",
         action="store_true",
@@ -246,21 +250,27 @@ def parse_argv(argv):
         "-nchan",
         "--n163-channels",
         type=int,
-        default=8,
-        help="N163 channel count. default = 8")
-    parser.add_argument(
-        "-o",
-        "--output",
-        type=str,
-        default="detune.csv",
-        help="output .csv")
-
+        default=0,
+        help="N163 channel count. default = 0")
     return parser.parse_args(argv[1:])
 
 DEBUG = True
 
 def main(argv=None):
     args = parse_argv(argv or sys.argv)
+
+    # input: path to output, tuning type, tuning key, pitch reference
+    # output: 97x6 .csv full of period offset values
+    # chiptype, C-0 period offset, C#1 period offset, ... B-7 period offset
+        # chiptype  value
+        # 2A03      0
+        # 2A07      1
+        # VRC6 saw  2
+        # VRC7      3
+        # FDS       4
+        # N163      5
+    # since VRC7 only has one octave LUT,
+    # the values keep repeating for every octave
     reference = tune_setting()
     tuner = tune_setting(
         type = intonation_dict[args.intonation],
@@ -279,19 +289,6 @@ def main(argv=None):
                 deltatune = ref - tune
                 csv_row.append(deltatune)
             csv_file.writerow(csv_row)
-
-    # input: path to output, tuning type, tuning key, pitch reference
-    # output: 97x6 .csv full of period offset values
-    # chiptype, C-0 period offset, C#1 period offset, ... B-7 period offset
-        # chiptype  value
-        # 2A03      0
-        # 2A07      1
-        # VRC6 saw  2
-        # VRC7      3
-        # FDS       4
-        # N163      5
-    # since VRC7 only has one octave LUT,
-    # the values keep repeating for every octave
 
 note_key_dict = {
     "c": 0,
